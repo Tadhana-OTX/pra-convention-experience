@@ -210,20 +210,13 @@ export default function Home() {
 
       <div className="poll-container">
 
+        {/* PRA EVENT HEADER */}
         <header className="brand-header">
           <div className="brand-logos">
             <img
               src="/PRA_edited.png-3.avif"
               alt="Philippine Rheumatology Association"
               className="pra-logo"
-            />
-
-            <div className="brand-divider" />
-
-            <img
-              src="/One Tadhana Inc Logo - horizontal2026 .png"
-              alt="One Tadhana Inc."
-              className="tadhana-logo"
             />
           </div>
 
@@ -249,6 +242,7 @@ export default function Home() {
           </div>
         )}
 
+        {/* WELCOME */}
         {screen === 0 && (
           <section className="screen welcome-card">
 
@@ -297,6 +291,7 @@ export default function Home() {
           </section>
         )}
 
+        {/* DAY 4 */}
         {screen === 1 && (
           <section className="screen">
 
@@ -341,6 +336,7 @@ export default function Home() {
           </section>
         )}
 
+        {/* DESTINATION */}
         {screen === 2 && (
           <section className="screen">
 
@@ -389,6 +385,7 @@ export default function Home() {
           </section>
         )}
 
+        {/* STAYING LONGER */}
         {screen === 3 && (
           <section className="screen">
 
@@ -437,6 +434,7 @@ export default function Home() {
           </section>
         )}
 
+        {/* OPTIONAL COMMENT */}
         {screen === 4 && (
           <section className="screen">
 
@@ -492,6 +490,7 @@ export default function Home() {
           </section>
         )}
 
+        {/* THANK YOU */}
         {screen === 5 && (
           <section className="screen thank-you">
 
@@ -519,10 +518,21 @@ export default function Home() {
           </section>
         )}
 
+        {/* ONE TADHANA ATTRIBUTION */}
         <footer className="footer">
+
           <span>An experience initiative by</span>
 
-          <strong>ONE TADHANA</strong>
+          <img
+            src="/One Tadhana Inc Logo - horizontal2026 .png"
+            alt="One Tadhana Inc."
+            className="tadhana-logo"
+            style={{
+              filter: "none",
+              width: "175px",
+              maxHeight: "42px",
+            }}
+          />
 
           <a
             href="https://www.tadhanasolutions.com"
@@ -531,6 +541,7 @@ export default function Home() {
           >
             www.tadhanasolutions.com
           </a>
+
         </footer>
 
       </div>
