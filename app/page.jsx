@@ -20,44 +20,74 @@ const day4Options = [
     description: "A quiet start to the day with the Northmin sunrise.",
   },
 ];
-const destinations = [
+const destinations = const destinations = [
   {
     value: "iligan",
     title: "Iligan's Majestic Waterfalls",
     description: "Chase waterfalls and discover the City of Majestic Falls.",
+    travel: "~90 km from CdeO • ~1.5–2.5 hrs by car",
   },
   {
     value: "cagayan_de_oro",
     title: "Cagayan de Oro's Whitewaters",
     description: "Raft, splash, and experience the City of Golden Friendship.",
+    travel: "Within/near CdeO • ~30–60 min by car",
   },
   {
     value: "bukidnon",
     title: "Bukidnon's Scenic Mountains",
     description: "Cool air, mountain views, and wide-open landscapes.",
+    travel: "~130 km to Dahilayan • ~2 hrs by car",
   },
   {
     value: "misamis_oriental",
     title: "Misamis Oriental's Coastline",
     description: "Discover beaches, bays, and coastal escapes.",
+    travel: "Varies by site • ~1–2.5 hrs by car",
   },
   {
     value: "camiguin",
     title: "Camiguin's Island Adventure",
     description: "Volcanoes, waterfalls, springs, and island life.",
+    travel: "~2 hrs to Balingoan + ferry",
   },
   {
     value: "siargao",
     title: "Siargao's Paradise Vibe",
     description: "Slow down, explore, and soak up island energy.",
+    travel: "~6–8 hrs+ including road travel & ferry",
   },
   {
     value: "agusan_norte",
     title: "Agusan Norte's Dive Spots",
     description: "Go beneath the surface and discover underwater treasures.",
+    travel: "Varies by site • ~2–4 hrs by car",
+  },
+  {
+    value: "enchanted_river",
+    title: "Enchanted River",
+    subtitle: "Hinatuan, Surigao del Sur",
+    description:
+      "Crystal-clear waters and one of Mindanao's iconic inland escapes.",
+    travel: "~300 km from CdeO • ~5 hrs by car",
+  },
+  {
+    value: "seven_seas",
+    title: "Seven Seas Waterpark",
+    subtitle: "Opol, Misamis Oriental",
+    description:
+      "Slides, waves, and a high-energy day just outside CdeO.",
+    travel: "~10–15 km from CdeO • ~15–30 min by car",
+  },
+  {
+    value: "claveria",
+    title: "Claveria",
+    subtitle: "Misamis Oriental",
+    description:
+      "Cooler air, scenic countryside, and a slower Northern Mindanao escape.",
+    travel: "~42 km from CdeO • ~45–60 min by car",
   },
 ];
-
 const extensionOptions = [
   {
     value: "yes",
