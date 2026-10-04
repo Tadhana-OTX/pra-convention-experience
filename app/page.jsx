@@ -518,7 +518,7 @@ export default function Home() {
           </section>
         )}
 
-        {/* ONE TADHANA ATTRIBUTION */}
+       {/* ONE TADHANA ATTRIBUTION - PRA EXPERIENCE PARTNER */}
      <footer className="footer">
   <strong>An Experience Initiative by One Tadhana Inc.</strong>
 
