@@ -519,30 +519,21 @@ export default function Home() {
         )}
 
         {/* ONE TADHANA ATTRIBUTION */}
-        <footer className="footer">
+     <footer className="footer">
+  <strong>An Experience Initiative by One Tadhana Inc.</strong>
 
-          <span>An experience initiative by</span>
+  <span>
+    The events logistics management and experience partner of PRA 33rd Annual Meeting
+  </span>
 
-          <img
-            src="/One Tadhana Inc Logo - horizontal2026 .png"
-            alt="One Tadhana Inc."
-            className="tadhana-logo"
-            style={{
-              filter: "none",
-              width: "175px",
-              maxHeight: "42px",
-            }}
-          />
-
-          <a
-            href="https://www.tadhanasolutions.com"
-            target="_blank"
-            rel="noreferrer"
-          >
-            www.tadhanasolutions.com
-          </a>
-
-        </footer>
+  <a
+    href="https://www.tadhanasolutions.com"
+    target="_blank"
+    rel="noreferrer"
+  >
+    www.tadhanasolutions.com
+  </a>
+</footer>
 
       </div>
     </main>
