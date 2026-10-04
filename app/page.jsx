@@ -4,14 +4,10 @@ import { useEffect, useState } from "react";
 
 const day4Options = [
   {
-    value: "fun_run",
-    title: "Fun Run as One",
-    description: "Start the day moving, laughing, and running together.",
-  },
-  {
-    value: "zumba",
-    title: "Zumba at the Boulevard",
-    description: "Music, movement, energy, and a whole lot of fun.",
+    value: "fun_run_zumba",
+    title: "Fun Run + Zumba",
+    description:
+      "Start the day moving together, then cool down with a short, fun Zumba session.",
   },
   {
     value: "coastal_cleanup",
@@ -24,7 +20,6 @@ const day4Options = [
     description: "A quiet start to the day with the Northmin sunrise.",
   },
 ];
-
 const destinations = [
   {
     value: "iligan",
