@@ -246,10 +246,10 @@ export default function Home() {
         {screen === 0 && (
           <section className="screen welcome-card">
 
-            <div className="poster-kicker">
-              <span>BACK TO</span>
-              <strong>CDO</strong>
-            </div>
+           <div className="poster-kicker">
+  <span>Back to CdeO</span>
+  <strong>Northern Mindanao</strong>
+</div>
 
             <p className="eyebrow">
               PRA 33rd Annual Meeting
