@@ -1,8 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 
 const allowedDay4 = [
-  "fun_run",
-  "zumba",
+  "fun_run_zumba",
   "coastal_cleanup",
   "sunrise_walk",
 ];
@@ -15,12 +14,14 @@ const allowedDestinations = [
   "camiguin",
   "siargao",
   "agusan_norte",
+  "enchanted_river",
+  "seven_seas",
+  "claveria",
 ];
 
 const allowedExtensionOptions = [
   "yes",
   "maybe",
-  "depends_on_cost",
   "no",
 ];
 
@@ -36,6 +37,10 @@ export async function POST(request) {
       comment,
     } = body;
 
+    /* --------------------------------
+       SESSION VALIDATION
+    -------------------------------- */
+
     if (!session_token) {
       return Response.json(
         { error: "Missing session token." },
@@ -43,22 +48,23 @@ export async function POST(request) {
       );
     }
 
-    if (!day4_experience || !allowedDay4.includes(day4_experience)) {
+    /* --------------------------------
+       DAY 4 VALIDATION
+    -------------------------------- */
+
+    if (
+      !day4_experience ||
+      !allowedDay4.includes(day4_experience)
+    ) {
       return Response.json(
         { error: "Invalid Day 4 experience." },
         { status: 400 }
       );
     }
 
-    if (
-      !destination ||
-      !allowedDestinations.includes(destination)
-    ) {
-      return Response.json(
-        { error: "Invalid destination." },
-        { status: 400 }
-      );
-    }
+    /* --------------------------------
+       STAY / EXTENSION VALIDATION
+    -------------------------------- */
 
     if (
       !staying_longer ||
@@ -70,12 +76,64 @@ export async function POST(request) {
       );
     }
 
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    /* --------------------------------
+       DESTINATION VALIDATION
+       
+       Destination is now an ARRAY because
+       respondents can choose multiple places.
+    -------------------------------- */
+
+    const selectedDestinations = Array.isArray(destination)
+      ? [...new Set(destination)]
+      : [];
+
+    /*
+      If the respondent is staying or maybe staying,
+      they must select at least one destination.
+    */
+    if (
+      staying_longer !== "no" &&
+      (
+        selectedDestinations.length === 0 ||
+        selectedDestinations.some(
+          (value) => !allowedDestinations.includes(value)
+        )
+      )
+    ) {
+      return Response.json(
+        { error: "Invalid destination selection." },
+        { status: 400 }
+      );
+    }
+
+    /*
+      If the respondent is going home after the Convention,
+      there should be no destination selections.
+    */
+    if (
+      staying_longer === "no" &&
+      selectedDestinations.length > 0
+    ) {
+      return Response.json(
+        { error: "Destination selection is not expected." },
+        { status: 400 }
+      );
+    }
+
+    /* --------------------------------
+       SUPABASE CONFIGURATION
+    -------------------------------- */
+
+    const supabaseUrl =
+      process.env.NEXT_PUBLIC_SUPABASE_URL;
+
     const supabaseKey =
       process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 
     if (!supabaseUrl || !supabaseKey) {
-      console.error("Supabase environment variables are missing.");
+      console.error(
+        "Supabase environment variables are missing."
+      );
 
       return Response.json(
         { error: "The poll is not configured yet." },
@@ -83,17 +141,25 @@ export async function POST(request) {
       );
     }
 
+    /* --------------------------------
+       SUPABASE CLIENT
+    -------------------------------- */
+
     const supabase = createClient(
       supabaseUrl,
       supabaseKey
     );
+
+    /* --------------------------------
+       SAVE RESPONSE
+    -------------------------------- */
 
     const { error } = await supabase
       .from("poll_responses")
       .insert({
         session_token,
         day4_experience,
-        destination,
+        destination: selectedDestinations,
         staying_longer,
         comment:
           typeof comment === "string"
@@ -101,8 +167,15 @@ export async function POST(request) {
             : null,
       });
 
+    /* --------------------------------
+       DATABASE ERROR HANDLING
+    -------------------------------- */
+
     if (error) {
-      console.error("Supabase insert error:", error);
+      console.error(
+        "Supabase insert error:",
+        error
+      );
 
       if (error.code === "23505") {
         return Response.json(
@@ -115,17 +188,28 @@ export async function POST(request) {
       }
 
       return Response.json(
-        { error: "We couldn't save your response." },
+        {
+          error:
+            "We couldn't save your response.",
+        },
         { status: 500 }
       );
     }
+
+    /* --------------------------------
+       SUCCESS
+    -------------------------------- */
 
     return Response.json(
       { success: true },
       { status: 201 }
     );
+
   } catch (error) {
-    console.error("Submit route error:", error);
+    console.error(
+      "Submit route error:",
+      error
+    );
 
     return Response.json(
       { error: "Invalid request." },
