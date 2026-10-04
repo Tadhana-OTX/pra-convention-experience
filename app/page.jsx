@@ -20,7 +20,7 @@ const day4Options = [
     description: "A quiet start to the day with the Northmin sunrise.",
   },
 ];
-const destinations = const destinations = [
+const destinations = [
   {
     value: "iligan",
     title: "Iligan's Majestic Waterfalls",
