@@ -206,16 +206,37 @@ export default function Home() {
 
   return (
     <main className="app-shell">
+      <div className="top-wave" />
+
       <div className="poll-container">
+
         <header className="brand-header">
-          <div className="brand-mark">PRA Convention</div>
-          <div className="brand-submark">Northmin</div>
+          <div className="brand-logos">
+            <img
+              src="/PRA_edited.png-3.avif"
+              alt="Philippine Rheumatology Association"
+              className="pra-logo"
+            />
+
+            <div className="brand-divider" />
+
+            <img
+              src="/One Tadhana Inc Logo - horizontal2026 .png"
+              alt="One Tadhana Inc."
+              className="tadhana-logo"
+            />
+          </div>
+
+          <div className="event-label">
+            PRA 33rd Annual Meeting
+            <span>February 24–27, 2027 • Cagayan de Oro</span>
+          </div>
         </header>
 
         {screen > 0 && screen < 5 && (
           <div className="progress-wrap">
             <div className="progress-label">
-              <span>Your Experience</span>
+              <span>Your PRA Experience</span>
               <span>{Math.round(progress)}%</span>
             </div>
 
@@ -230,7 +251,15 @@ export default function Home() {
 
         {screen === 0 && (
           <section className="screen welcome-card">
-            <p className="eyebrow">PRA Convention • Northmin</p>
+
+            <div className="poster-kicker">
+              <span>BACK TO</span>
+              <strong>CDO</strong>
+            </div>
+
+            <p className="eyebrow">
+              PRA 33rd Annual Meeting
+            </p>
 
             <h1 className="hero-title">
               YOUR PRA.
@@ -239,14 +268,20 @@ export default function Home() {
             </h1>
 
             <p className="hero-copy">
-              The Convention is more than a program. It is a shared
-              experience — and we want you to help shape it.
+              The Convention is more than a program.
+              <br />
+              It is a shared experience — and
+              <strong> you help shape it.</strong>
             </p>
+
+            <div className="experience-banner">
+              <span>YOU CHOOSE.</span>
+              <strong>WE MAKE IT HAPPEN.</strong>
+            </div>
 
             <div className="welcome-meta">
               <span className="meta-pill">60 seconds</span>
               <span className="meta-pill">4 quick questions</span>
-              <span className="meta-pill">You choose. We make it happen.</span>
             </div>
 
             <div className="actions">
@@ -255,25 +290,27 @@ export default function Home() {
                 className="primary-button"
                 onClick={() => setScreen(1)}
               >
-                Let's Go →
+                LET'S GO →
               </button>
             </div>
+
           </section>
         )}
 
         {screen === 1 && (
           <section className="screen">
-            <p className="eyebrow">Day 4</p>
+
+            <p className="eyebrow">DAY 4</p>
 
             <h1 className="question-title">
               YOU CHOOSE.
               <br />
-              WE MAKE IT HAPPEN.
+              <span>WE MAKE IT HAPPEN.</span>
             </h1>
 
             <p className="question-copy">
-              If you could choose ONE experience for our Day 4, what would
-              you join?
+              If you could choose ONE experience for our Day 4,
+              what would you join?
             </p>
 
             {renderOptions(day4Options, day4, setDay4)}
@@ -284,7 +321,7 @@ export default function Home() {
                 className="secondary-button"
                 onClick={goBack}
               >
-                Back
+                ← Back
               </button>
 
               <button
@@ -293,29 +330,31 @@ export default function Home() {
                 onClick={goNext}
                 disabled={!day4}
               >
-                Continue →
+                CONTINUE →
               </button>
             </div>
 
             {errorMessage && (
               <div className="error-message">{errorMessage}</div>
             )}
+
           </section>
         )}
 
         {screen === 2 && (
           <section className="screen">
-            <p className="eyebrow">Post-Convention</p>
+
+            <p className="eyebrow">POST-CONVENTION</p>
 
             <h1 className="question-title">
               THE CONVENTION ENDS.
               <br />
-              NORTHMIN DOESN'T.
+              <span>NORTHMIN DOESN'T.</span>
             </h1>
 
             <p className="question-copy">
-              If you're staying a little longer, where would you love to
-              go?
+              If you're staying a little longer,
+              where would you love to go?
             </p>
 
             {renderOptions(
@@ -330,7 +369,7 @@ export default function Home() {
                 className="secondary-button"
                 onClick={goBack}
               >
-                Back
+                ← Back
               </button>
 
               <button
@@ -339,28 +378,31 @@ export default function Home() {
                 onClick={goNext}
                 disabled={!destination}
               >
-                Continue →
+                CONTINUE →
               </button>
             </div>
 
             {errorMessage && (
               <div className="error-message">{errorMessage}</div>
             )}
+
           </section>
         )}
 
         {screen === 3 && (
           <section className="screen">
-            <p className="eyebrow">One More Thing</p>
+
+            <p className="eyebrow">ONE MORE THING</p>
 
             <h1 className="question-title">
               ARE YOU STAYING
               <br />
-              A LITTLE LONGER?
+              <span>A LITTLE LONGER?</span>
             </h1>
 
             <p className="question-copy">
-              Would you consider extending your trip after the Convention?
+              Would you consider extending your trip
+              after the Convention?
             </p>
 
             {renderOptions(
@@ -375,7 +417,7 @@ export default function Home() {
                 className="secondary-button"
                 onClick={goBack}
               >
-                Back
+                ← Back
               </button>
 
               <button
@@ -384,29 +426,31 @@ export default function Home() {
                 onClick={goNext}
                 disabled={!stayingLonger}
               >
-                Continue →
+                CONTINUE →
               </button>
             </div>
 
             {errorMessage && (
               <div className="error-message">{errorMessage}</div>
             )}
+
           </section>
         )}
 
         {screen === 4 && (
           <section className="screen">
-            <p className="eyebrow">Almost There</p>
+
+            <p className="eyebrow">ALMOST THERE</p>
 
             <h1 className="question-title">
               WHAT WOULD MAKE
               <br />
-              IT UNFORGETTABLE?
+              <span>IT UNFORGETTABLE?</span>
             </h1>
 
             <p className="question-copy">
-              Tell us anything you'd love to see, experience, eat, discover,
-              or remember.
+              Tell us anything you'd love to see,
+              experience, eat, discover, or remember.
             </p>
 
             <textarea
@@ -428,7 +472,7 @@ export default function Home() {
                 onClick={goBack}
                 disabled={submitting}
               >
-                Back
+                ← Back
               </button>
 
               <button
@@ -437,36 +481,58 @@ export default function Home() {
                 onClick={submitResponse}
                 disabled={submitting}
               >
-                {submitting ? "Saving..." : "Submit My Choices →"}
+                {submitting ? "SAVING..." : "SUBMIT MY CHOICES →"}
               </button>
             </div>
 
             {errorMessage && (
               <div className="error-message">{errorMessage}</div>
             )}
+
           </section>
         )}
 
         {screen === 5 && (
           <section className="screen thank-you">
+
             <div className="checkmark">✓</div>
 
-            <p className="eyebrow">You're In</p>
+            <p className="eyebrow">YOU'RE IN</p>
 
             <h1>
-              Thank you!
+              THANK
+              <br />
+              <span>YOU!</span>
             </h1>
 
             <p>
-              Your choices have been recorded. Now let's see what Northmin
-              wants to experience together.
+              Your choices have been recorded.
+              <br />
+              Now let's see what Northmin wants
+              to experience together.
             </p>
+
+            <div className="thank-you-line">
+              YOUR PRA. YOUR EXPERIENCE.
+            </div>
+
           </section>
         )}
 
         <footer className="footer">
-          An experience initiative of <strong>One Tadhana</strong>
+          <span>An experience initiative by</span>
+
+          <strong>ONE TADHANA</strong>
+
+          <a
+            href="https://www.tadhanasolutions.com"
+            target="_blank"
+            rel="noreferrer"
+          >
+            www.tadhanasolutions.com
+          </a>
         </footer>
+
       </div>
     </main>
   );
