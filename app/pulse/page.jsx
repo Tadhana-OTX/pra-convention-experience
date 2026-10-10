@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 const day4Labels = {
   fun_run_zumba: "Fun Run + Zumba",
   coastal_cleanup: "Coastal Cleanup & Coffee by the Bay",
-  sunrise_walk: "Sunrise Walk",
+  sunrise_walk: "Sunrise Walk + Coffee Chill",
 };
 
 const stayingLabels = {
