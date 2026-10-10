@@ -13,8 +13,7 @@ const day4Options = [
   {
     value: "coastal_cleanup",
     title: "Coastal Cleanup & Coffee by the Bay",
-    description:
-      "Give back to the coast, then slow down over coffee.",
+    description: "Give back to the coast, then slow down over coffee.",
   },
   {
     value: "sunrise_walk",
@@ -129,22 +128,19 @@ const sidequestOptions = [
   {
     value: "think_about_it",
     title: "Actually, let me think about it",
-    description:
-      "I'm open to extending my stay if something catches my interest.",
+    description: "I'm open to extending my stay if something catches my interest.",
     icon: "🧭",
   },
   {
     value: "might_stay",
     title: "I might stay longer",
-    description:
-      "Show me the possibilities. I'm not committing just yet.",
+    description: "Show me the possibilities. I'm not committing just yet.",
     icon: "✨",
   },
   {
     value: "cannot_stay",
     title: "I really can't stay longer",
-    description:
-      "As much as I'd love to, I need to head home.",
+    description: "As much as I'd love to, I need to head home.",
     icon: "🏡",
   },
 ];
@@ -154,14 +150,14 @@ export default function Home() {
   const [day4, setDay4] = useState("");
   const [destination, setDestination] = useState([]);
   const [stayingLonger, setStayingLonger] = useState("");
-  const [initialStayingLonger, setInitialStayingLonger] =
-    useState("");
+  const [initialStayingLonger, setInitialStayingLonger] = useState("");
   const [sidequestDecision, setSidequestDecision] = useState("");
   const [comment, setComment] = useState("");
   const [sessionToken, setSessionToken] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
+  // Create or retrieve the participant's session token.
   useEffect(() => {
     let token = localStorage.getItem("pra_poll_session");
 
@@ -173,12 +169,21 @@ export default function Home() {
     setSessionToken(token);
   }, []);
 
+  // Start each new screen at the top so its heading is visible.
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      left: 0,
+      behavior: "auto",
+    });
+  }, [screen]);
+
   const progress =
     screen === 0
       ? 0
       : screen === 6
         ? 100
-        : Math.round((screen / 5) * 100);
+        : Math.min(95, Math.round((screen / 5) * 100));
 
   const goNext = () => {
     setErrorMessage("");
@@ -213,6 +218,13 @@ export default function Home() {
       return;
     }
 
+    // After destination selection, go directly to the comment screen.
+    // Do not show the side quest to participants who answered Yes or Maybe.
+    if (screen === 3) {
+      setScreen(5);
+      return;
+    }
+
     setScreen((current) => current + 1);
   };
 
@@ -225,7 +237,8 @@ export default function Home() {
     }
 
     if (screen === 3) {
-      setScreen(2);
+      // Participants reconsidering their initial No return to the side quest.
+      setScreen(initialStayingLonger === "no" ? 4 : 2);
       return;
     }
 
@@ -235,9 +248,14 @@ export default function Home() {
     }
 
     if (screen === 5) {
-      if (initialStayingLonger === "no") {
+      // If they declined to stay, return to the side-quest choices.
+      if (
+        initialStayingLonger === "no" &&
+        sidequestDecision === "cannot_stay"
+      ) {
         setScreen(4);
       } else {
+        // Otherwise return to the destination choices.
         setScreen(3);
       }
       return;
@@ -257,8 +275,8 @@ export default function Home() {
       return;
     }
 
-    // Preserve the initial "No", but record the final
-    // intention as "Maybe" after reconsideration.
+    // Preserve the initial No separately while recording the final intention
+    // as Maybe after reconsideration.
     setStayingLonger("maybe");
     setScreen(3);
   };
@@ -267,9 +285,7 @@ export default function Home() {
     setErrorMessage("");
 
     if (!sessionToken) {
-      setErrorMessage(
-        "Please wait a moment and try submitting again."
-      );
+      setErrorMessage("Please wait a moment and try submitting again.");
       return;
     }
 
@@ -286,8 +302,7 @@ export default function Home() {
           day4_experience: day4,
           destination,
           staying_longer: stayingLonger,
-          initial_staying_longer:
-            initialStayingLonger || stayingLonger,
+          initial_staying_longer: initialStayingLonger || stayingLonger,
           sidequest_decision: sidequestDecision || null,
           comment: comment.trim() || null,
         }),
@@ -296,16 +311,13 @@ export default function Home() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(
-          data?.error || "Something went wrong."
-        );
+        throw new Error(data?.error || "Something went wrong.");
       }
 
       setScreen(6);
     } catch (error) {
       setErrorMessage(
-        error.message ||
-          "We couldn't save your response. Please try again."
+        error.message || "We couldn't save your response. Please try again."
       );
     } finally {
       setSubmitting(false);
@@ -341,38 +353,26 @@ export default function Home() {
           <button
             key={option.value}
             type="button"
-            className={`option-card ${
-              isSelected ? "selected" : ""
-            }`}
+            className={`option-card ${isSelected ? "selected" : ""}`}
             onClick={handleSelect}
             aria-pressed={isSelected}
           >
-            <span className="option-number">
-              {index + 1}
-            </span>
+            <span className="option-number">{index + 1}</span>
 
             <span className="option-arrow">
               {isSelected ? "✓" : "→"}
             </span>
 
-            <span className="option-title">
-              {option.title}
-            </span>
+            <span className="option-title">{option.title}</span>
 
             {option.subtitle && (
-              <span className="option-subtitle">
-                {option.subtitle}
-              </span>
+              <span className="option-subtitle">{option.subtitle}</span>
             )}
 
-            <span className="option-description">
-              {option.description}
-            </span>
+            <span className="option-description">{option.description}</span>
 
             {option.travel && (
-              <span className="option-travel">
-                🚗 {option.travel}
-              </span>
+              <span className="option-travel">🚗 {option.travel}</span>
             )}
           </button>
         );
@@ -396,9 +396,7 @@ export default function Home() {
 
           <div className="event-label">
             PRA 33rd Annual Meeting
-            <span>
-              February 24–27, 2027 • Cagayan de Oro
-            </span>
+            <span>February 24–27, 2027 • Cagayan de Oro</span>
           </div>
         </header>
 
@@ -419,7 +417,6 @@ export default function Home() {
         )}
 
         {/* WELCOME */}
-
         {screen === 0 && (
           <section className="screen welcome-card">
             <div className="poster-kicker">
@@ -427,9 +424,7 @@ export default function Home() {
               <span>Northern Mindanao</span>
             </div>
 
-            <p className="eyebrow">
-              PRA 33rd Annual Meeting
-            </p>
+            <p className="eyebrow">PRA 33rd Annual Meeting</p>
 
             <h1 className="hero-title">
               YOUR PRA.
@@ -440,8 +435,7 @@ export default function Home() {
             <p className="hero-copy">
               The Convention is more than a program.
               <br />
-              It is a shared experience —
-              <strong> you help shape it.</strong>
+              It is a shared experience — <strong>you help shape it.</strong>
             </p>
 
             <div className="experience-banner">
@@ -451,9 +445,7 @@ export default function Home() {
 
             <div className="welcome-meta">
               <span className="meta-pill">60 seconds</span>
-              <span className="meta-pill">
-                4 quick questions
-              </span>
+              <span className="meta-pill">4 quick questions</span>
             </div>
 
             <div className="actions">
@@ -468,8 +460,7 @@ export default function Home() {
           </section>
         )}
 
-        {/* DAY 4 */}
-
+        {/* DAY 4 EXPERIENCE */}
         {screen === 1 && (
           <section className="screen">
             <p className="eyebrow">DAY 4</p>
@@ -481,8 +472,8 @@ export default function Home() {
             </h1>
 
             <p className="question-copy">
-              If you could choose ONE experience for
-              our Day 4, what would you join?
+              If you could choose ONE experience for our Day 4, what would you
+              join?
             </p>
 
             {renderOptions(day4Options, day4, setDay4)}
@@ -507,15 +498,12 @@ export default function Home() {
             </div>
 
             {errorMessage && (
-              <div className="error-message">
-                {errorMessage}
-              </div>
+              <div className="error-message">{errorMessage}</div>
             )}
           </section>
         )}
 
         {/* INITIAL STAY QUESTION */}
-
         {screen === 2 && (
           <section className="screen">
             <p className="eyebrow">POST-CONVENTION</p>
@@ -527,16 +515,11 @@ export default function Home() {
             </h1>
 
             <p className="question-copy">
-              After the Convention, are you planning
-              to stay a little longer in Northern
-              Mindanao?
+              After the Convention, are you planning to stay a little longer in
+              Northern Mindanao?
             </p>
 
-            {renderOptions(
-              extensionOptions,
-              stayingLonger,
-              setStayingLonger
-            )}
+            {renderOptions(extensionOptions, stayingLonger, setStayingLonger)}
 
             <div className="actions">
               <button
@@ -558,20 +541,15 @@ export default function Home() {
             </div>
 
             {errorMessage && (
-              <div className="error-message">
-                {errorMessage}
-              </div>
+              <div className="error-message">{errorMessage}</div>
             )}
           </section>
         )}
 
-        {/* DESTINATIONS */}
-
+        {/* DESTINATION SELECTION */}
         {screen === 3 && (
           <section className="screen">
-            <p className="eyebrow">
-              YOUR NORTHMIN SIDE QUEST
-            </p>
+            <p className="eyebrow">YOUR NORTHMIN SIDE QUEST</p>
 
             <h1 className="question-title">
               THE CONVENTION ENDS.
@@ -580,28 +558,20 @@ export default function Home() {
             </h1>
 
             <p className="question-copy">
-              If you're staying a little longer,
-              where would you love to explore?
+              If you're staying a little longer, where would you love to
+              explore?
               <br />
-
               <span className="travel-note">
                 Choose as many as you'd consider.
               </span>
-
               <br />
-
               <span className="travel-note">
-                Travel times are approximate and may vary
-                with traffic, stops, and ferry schedules.
+                Travel times are approximate and may vary with traffic, stops,
+                and ferry schedules.
               </span>
             </p>
 
-            {renderOptions(
-              destinations,
-              destination,
-              setDestination,
-              true
-            )}
+            {renderOptions(destinations, destination, setDestination, true)}
 
             <div className="actions">
               <button
@@ -623,15 +593,12 @@ export default function Home() {
             </div>
 
             {errorMessage && (
-              <div className="error-message">
-                {errorMessage}
-              </div>
+              <div className="error-message">{errorMessage}</div>
             )}
           </section>
         )}
 
-        {/* SIDE-QUEST INVITATION FOR INITIAL NO */}
-
+        {/* SIDE QUEST FOR PARTICIPANTS WHO INITIALLY ANSWERED NO */}
         {screen === 4 && (
           <section className="screen sidequest-screen">
             <div className="sidequest-kicker">
@@ -648,14 +615,11 @@ export default function Home() {
             </h1>
 
             <p className="question-copy">
-              What if your PRA convention came with
-              a little side quest?
+              What if your PRA convention came with a little side quest?
             </p>
 
             <div className="sidequest-banner">
-              <div className="sidequest-banner-icon">
-                🧭
-              </div>
+              <div className="sidequest-banner-icon">🧭</div>
 
               <div>
                 <strong>
@@ -665,53 +629,71 @@ export default function Home() {
                 </strong>
 
                 <p>
-                  You came for the convention.
-                  What if you stayed for the experience?
+                  You came for the convention. What if you stayed for the
+                  experience?
                 </p>
               </div>
             </div>
 
-            <h2 className="sidequest-subheading">
-              What could you discover?
-            </h2>
+            <h2 className="sidequest-subheading">What could you discover?</h2>
 
             <p className="sidequest-copy">
-              From island escapes and scenic mountains
-              to waterfalls, whitewater adventures,
-              and coastal hideaways, there may be a
+              From island escapes and scenic mountains to waterfalls,
+              whitewater adventures, and coastal hideaways, there may be a
               destination worth staying for.
             </p>
 
-            <div className="sidequest-destinations">
+            {/* Informational list only — these destinations are not clickable. */}
+            <ul
+              className="sidequest-discovery-list"
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "12px",
+                listStyle: "none",
+                margin: "20px 0 28px",
+                padding: 0,
+              }}
+            >
               {destinations.map((place) => (
-                <div
-                  className="sidequest-destination"
+                <li
                   key={place.value}
+                  style={{
+                    display: "flex",
+                    alignItems: "baseline",
+                    gap: "10px",
+                    padding: 0,
+                    border: 0,
+                    borderRadius: 0,
+                    background: "transparent",
+                    boxShadow: "none",
+                    color: "inherit",
+                    fontSize: "0.96rem",
+                    lineHeight: 1.5,
+                    textAlign: "left",
+                  }}
                 >
-                  <span className="sidequest-place-icon">
-                    {place.icon}
-                  </span>
+                  <span aria-hidden="true">{place.icon}</span>
 
-                  <div className="sidequest-place-content">
+                  <span style={{ minWidth: 0 }}>
                     <strong>{place.title}</strong>
-
-                    <span>{place.subtitle}</span>
-
-                    <p>{place.description}</p>
-                  </div>
-                </div>
+                    <span
+                      style={{
+                        color: "#777",
+                        fontWeight: 400,
+                      }}
+                    >
+                      {" "}— {place.subtitle}
+                    </span>
+                  </span>
+                </li>
               ))}
-            </div>
+            </ul>
 
             <div className="sidequest-question">
-              <strong>
-                So... should we leave the door open?
-              </strong>
+              <strong>So... should we leave the door open?</strong>
 
-              <p>
-                Choose whichever feels right.
-                No pressure — just possibilities.
-              </p>
+              <p>Choose whichever feels right. No pressure — just possibilities.</p>
             </div>
 
             <div className="sidequest-choices">
@@ -724,22 +706,16 @@ export default function Home() {
                       ? "sidequest-choice-home"
                       : ""
                   }`}
-                  onClick={() =>
-                    chooseSidequest(option.value)
-                  }
+                  onClick={() => chooseSidequest(option.value)}
                 >
-                  <span className="sidequest-choice-icon">
-                    {option.icon}
-                  </span>
+                  <span className="sidequest-choice-icon">{option.icon}</span>
 
                   <span className="sidequest-choice-copy">
                     <strong>{option.title}</strong>
                     <span>{option.description}</span>
                   </span>
 
-                  <span className="sidequest-choice-arrow">
-                    →
-                  </span>
+                  <span className="sidequest-choice-arrow">→</span>
                 </button>
               ))}
             </div>
@@ -757,7 +733,6 @@ export default function Home() {
         )}
 
         {/* OPTIONAL COMMENT */}
-
         {screen === 5 && (
           <section className="screen">
             <p className="eyebrow">ALMOST THERE</p>
@@ -771,24 +746,21 @@ export default function Home() {
             {initialStayingLonger === "no" &&
             sidequestDecision === "cannot_stay" ? (
               <p className="question-copy">
-                No worries! We understand that plans and
-                schedules come first. Before you go,
-                is there anything you'd love to see,
-                experience, eat, or discover?
+                No worries! We understand that plans and schedules come first.
+                Before you go, is there anything you'd love to see, experience,
+                eat, or discover?
               </p>
             ) : (
               <p className="question-copy">
-                Tell us anything you'd love to see,
-                experience, eat, discover, or remember.
+                Tell us anything you'd love to see, experience, eat, discover,
+                or remember.
               </p>
             )}
 
             <textarea
               className="textarea"
               value={comment}
-              onChange={(event) =>
-                setComment(event.target.value)
-              }
+              onChange={(event) => setComment(event.target.value)}
               placeholder="Your idea..."
               maxLength={500}
             />
@@ -813,22 +785,17 @@ export default function Home() {
                 onClick={submitResponse}
                 disabled={submitting || !sessionToken}
               >
-                {submitting
-                  ? "SAVING..."
-                  : "SUBMIT MY CHOICES →"}
+                {submitting ? "SAVING..." : "SUBMIT MY CHOICES →"}
               </button>
             </div>
 
             {errorMessage && (
-              <div className="error-message">
-                {errorMessage}
-              </div>
+              <div className="error-message">{errorMessage}</div>
             )}
           </section>
         )}
 
         {/* THANK YOU */}
-
         {screen === 6 && (
           <section className="screen thank-you">
             <div className="checkmark">✓</div>
@@ -844,24 +811,19 @@ export default function Home() {
             <p>
               Your choices have been recorded.
               <br />
-              Every response helps shape the PRA
-              convention experience.
+              Every response helps shape the PRA convention experience.
             </p>
 
-            <div className="thank-you-line">
-              YOUR PRA. YOUR EXPERIENCE.
-            </div>
+            <div className="thank-you-line">YOUR PRA. YOUR EXPERIENCE.</div>
           </section>
         )}
 
         <footer className="footer">
-          <strong>
-            An Experience Initiative by One Tadhana Inc.
-          </strong>
+          <strong>An Experience Initiative by One Tadhana Inc.</strong>
 
           <span>
-            The events logistics management and experience
-            partner of PRA 33rd Annual Meeting
+            The events logistics management and experience partner of PRA 33rd
+            Annual Meeting
           </span>
 
           <a
