@@ -1480,3 +1480,258 @@ button:disabled {
     transition-duration: .01ms !important;
   }
 }
+
+
+
+/* =========================================
+   PRA POLL — SIDE QUEST SCREEN
+========================================= */
+
+.sidequest-screen {
+  overflow: hidden;
+}
+
+.sidequest-kicker {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding: 10px 13px;
+  color: var(--deep-blue);
+  background: #fff6dc;
+  border-radius: 10px;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .12em;
+}
+
+.sidequest-kicker span:last-child {
+  font-size: 20px;
+}
+
+.sidequest-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin: 20px 0;
+  padding: 20px 16px;
+  color: var(--navy);
+  background: #fff6dc;
+  border: 1px solid #f0e1b5;
+  border-radius: 18px;
+}
+
+.sidequest-banner-icon {
+  display: grid;
+  flex: 0 0 46px;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  background: white;
+  border-radius: 14px;
+  font-size: 24px;
+}
+
+.sidequest-banner strong {
+  display: block;
+  font-size: clamp(19px, 5vw, 27px);
+  font-weight: 900;
+  line-height: 1.12;
+  letter-spacing: -.04em;
+}
+
+.sidequest-banner p {
+  margin: 10px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.sidequest-subheading {
+  margin: 25px 0 8px;
+  color: var(--navy);
+  font-size: 20px;
+  font-weight: 900;
+  letter-spacing: -.03em;
+}
+
+.sidequest-copy {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.65;
+}
+
+.sidequest-destinations {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 10px;
+  margin-top: 17px;
+}
+
+.sidequest-destination {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  min-width: 0;
+  padding: 13px;
+  background: #fffefa;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+}
+
+.sidequest-place-icon {
+  display: grid;
+  flex: 0 0 39px;
+  place-items: center;
+  width: 39px;
+  height: 39px;
+  background: #edf7fb;
+  border-radius: 50%;
+  font-size: 20px;
+}
+
+.sidequest-place-content {
+  min-width: 0;
+}
+
+.sidequest-place-content strong {
+  display: block;
+  color: var(--navy);
+  font-size: 13px;
+  font-weight: 900;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.sidequest-place-content > span {
+  display: block;
+  margin-top: 2px;
+  color: var(--blue);
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.sidequest-place-content p {
+  margin: 5px 0 0;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.sidequest-question {
+  margin-top: 25px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+}
+
+.sidequest-question strong {
+  display: block;
+  color: var(--navy);
+  font-size: 18px;
+  font-weight: 900;
+  line-height: 1.35;
+}
+
+.sidequest-question p {
+  margin: 7px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.sidequest-choices {
+  display: grid;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.sidequest-choice {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 15px 13px;
+  text-align: left;
+  color: var(--navy);
+  background: #fffefa;
+  border: 1px solid var(--border);
+  border-radius: 15px;
+  cursor: pointer;
+  transition:
+    border-color .18s ease,
+    background .18s ease,
+    transform .18s ease;
+}
+
+.sidequest-choice:hover {
+  background: #f2f8fc;
+  border-color: var(--blue);
+  transform: translateY(-1px);
+}
+
+.sidequest-choice-icon {
+  display: grid;
+  flex: 0 0 40px;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  background: #edf7fb;
+  border-radius: 12px;
+  font-size: 21px;
+}
+
+.sidequest-choice-copy {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.sidequest-choice-copy strong {
+  font-size: 13px;
+  font-weight: 900;
+  line-height: 1.4;
+}
+
+.sidequest-choice-copy > span {
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.sidequest-choice-arrow {
+  flex: 0 0 auto;
+  color: var(--blue);
+  font-size: 20px;
+  font-weight: 900;
+}
+
+.sidequest-choice-home {
+  background: #f8f8f5;
+}
+
+.sidequest-choice-home .sidequest-choice-icon {
+  background: #eeeee9;
+}
+
+@media (min-width: 600px) {
+  .sidequest-destinations {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .sidequest-banner {
+    padding: 24px;
+  }
+
+  .sidequest-destination {
+    padding: 15px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sidequest-choice {
+    transition: none;
+  }
+}
