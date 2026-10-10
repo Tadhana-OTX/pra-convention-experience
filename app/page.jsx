@@ -14,11 +14,12 @@ const day4Options = [
     title: "Coastal Cleanup & Coffee by the Bay",
     description: "Give back to the coast, then slow down over coffee.",
   },
-  {
-    value: "sunrise_walk",
-    title: "Sunrise Walk",
-    description: "A quiet start to the day with the Northmin sunrise.",
-  },
+ {
+  value: "sunrise_walk",
+  title: "Sunrise Walk + Coffee Chill",
+  description:
+    "Welcome the Northmin sunrise, then unwind together over a relaxed coffee.",
+},
 ];
 
 const destinations = [
