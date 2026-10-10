@@ -1,3 +1,4 @@
+
 import { createClient } from "@supabase/supabase-js";
 
 const allowedDay4 = [
@@ -19,10 +20,12 @@ const allowedDestinations = [
   "claveria",
 ];
 
-const allowedExtensionOptions = [
-  "yes",
-  "maybe",
-  "no",
+const allowedStayOptions = ["yes", "maybe", "no"];
+
+const allowedSidequestDecisions = [
+  "think_about_it",
+  "might_stay",
+  "cannot_stay",
 ];
 
 export async function POST(request) {
@@ -34,12 +37,10 @@ export async function POST(request) {
       day4_experience,
       destination,
       staying_longer,
+      initial_staying_longer,
+      sidequest_decision,
       comment,
     } = body;
-
-    /* --------------------------------
-       SESSION VALIDATION
-    -------------------------------- */
 
     if (!session_token) {
       return Response.json(
@@ -48,56 +49,74 @@ export async function POST(request) {
       );
     }
 
-    /* --------------------------------
-       DAY 4 VALIDATION
-    -------------------------------- */
-
-    if (
-      !day4_experience ||
-      !allowedDay4.includes(day4_experience)
-    ) {
+    if (!allowedDay4.includes(day4_experience)) {
       return Response.json(
         { error: "Invalid Day 4 experience." },
         { status: 400 }
       );
     }
 
-    /* --------------------------------
-       STAY / EXTENSION VALIDATION
-    -------------------------------- */
-
-    if (
-      !staying_longer ||
-      !allowedExtensionOptions.includes(staying_longer)
-    ) {
+    if (!allowedStayOptions.includes(staying_longer)) {
       return Response.json(
         { error: "Invalid extension response." },
         { status: 400 }
       );
     }
 
-    /* --------------------------------
-       DESTINATION VALIDATION
-       
-       Destination is now an ARRAY because
-       respondents can choose multiple places.
-    -------------------------------- */
+    const initialStay = initial_staying_longer || staying_longer;
+
+    if (!allowedStayOptions.includes(initialStay)) {
+      return Response.json(
+        { error: "Invalid initial extension response." },
+        { status: 400 }
+      );
+    }
+
+    // A participant who initially says No must answer
+    // the side-quest follow-up before submitting.
+    if (initialStay === "no") {
+      if (
+        !allowedSidequestDecisions.includes(sidequest_decision)
+      ) {
+        return Response.json(
+          { error: "Please complete the side-quest question." },
+          { status: 400 }
+        );
+      }
+
+      if (
+        sidequest_decision === "cannot_stay" &&
+        staying_longer !== "no"
+      ) {
+        return Response.json(
+          { error: "Please confirm your final stay response." },
+          { status: 400 }
+        );
+      }
+
+      if (
+        sidequest_decision !== "cannot_stay" &&
+        staying_longer !== "maybe"
+      ) {
+        return Response.json(
+          { error: "Please record your reconsidered response." },
+          { status: 400 }
+        );
+      }
+    } else if (sidequest_decision) {
+      return Response.json(
+        { error: "Unexpected side-quest response." },
+        { status: 400 }
+      );
+    }
 
     const selectedDestinations = Array.isArray(destination)
       ? [...new Set(destination)]
       : [];
 
-    /*
-      If the respondent is staying or maybe staying,
-      they must select at least one destination.
-    */
     if (
-      staying_longer !== "no" &&
-      (
-        selectedDestinations.length === 0 ||
-        selectedDestinations.some(
-          (value) => !allowedDestinations.includes(value)
-        )
+      selectedDestinations.some(
+        (value) => !allowedDestinations.includes(value)
       )
     ) {
       return Response.json(
@@ -106,10 +125,16 @@ export async function POST(request) {
       );
     }
 
-    /*
-      If the respondent is going home after the Convention,
-      there should be no destination selections.
-    */
+    if (
+      staying_longer !== "no" &&
+      selectedDestinations.length === 0
+    ) {
+      return Response.json(
+        { error: "Please choose at least one destination." },
+        { status: 400 }
+      );
+    }
+
     if (
       staying_longer === "no" &&
       selectedDestinations.length > 0
@@ -120,10 +145,6 @@ export async function POST(request) {
       );
     }
 
-    /* --------------------------------
-       SUPABASE CONFIGURATION
-    -------------------------------- */
-
     const supabaseUrl =
       process.env.NEXT_PUBLIC_SUPABASE_URL;
 
@@ -131,9 +152,7 @@ export async function POST(request) {
       process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 
     if (!supabaseUrl || !supabaseKey) {
-      console.error(
-        "Supabase environment variables are missing."
-      );
+      console.error("Supabase environment variables are missing.");
 
       return Response.json(
         { error: "The poll is not configured yet." },
@@ -141,18 +160,10 @@ export async function POST(request) {
       );
     }
 
-    /* --------------------------------
-       SUPABASE CLIENT
-    -------------------------------- */
-
     const supabase = createClient(
       supabaseUrl,
       supabaseKey
     );
-
-    /* --------------------------------
-       SAVE RESPONSE
-    -------------------------------- */
 
     const { error } = await supabase
       .from("poll_responses")
@@ -161,21 +172,17 @@ export async function POST(request) {
         day4_experience,
         destination: selectedDestinations,
         staying_longer,
+        initial_staying_longer: initialStay,
+        sidequest_decision:
+          initialStay === "no" ? sidequest_decision : null,
         comment:
           typeof comment === "string"
             ? comment.trim().slice(0, 500) || null
             : null,
       });
 
-    /* --------------------------------
-       DATABASE ERROR HANDLING
-    -------------------------------- */
-
     if (error) {
-      console.error(
-        "Supabase insert error:",
-        error
-      );
+      console.error("Supabase insert error:", error);
 
       if (error.code === "23505") {
         return Response.json(
@@ -188,28 +195,17 @@ export async function POST(request) {
       }
 
       return Response.json(
-        {
-          error:
-            "We couldn't save your response.",
-        },
+        { error: "We couldn't save your response." },
         { status: 500 }
       );
     }
-
-    /* --------------------------------
-       SUCCESS
-    -------------------------------- */
 
     return Response.json(
       { success: true },
       { status: 201 }
     );
-
   } catch (error) {
-    console.error(
-      "Submit route error:",
-      error
-    );
+    console.error("Submit route error:", error);
 
     return Response.json(
       { error: "Invalid request." },
