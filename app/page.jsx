@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect, useState } from "react";
@@ -12,89 +13,97 @@ const day4Options = [
   {
     value: "coastal_cleanup",
     title: "Coastal Cleanup & Coffee by the Bay",
-    description: "Give back to the coast, then slow down over coffee.",
+    description:
+      "Give back to the coast, then slow down over coffee.",
   },
- {
-  value: "sunrise_walk",
-  title: "Sunrise Walk + Coffee Chill",
-  description:
-    "Welcome the Northmin sunrise, then unwind together over a relaxed coffee.",
-},
+  {
+    value: "sunrise_walk",
+    title: "Sunrise Walk + Coffee Chill",
+    description:
+      "Welcome the Northmin sunrise, then unwind together over a relaxed coffee.",
+  },
 ];
 
 const destinations = [
   {
     value: "iligan",
     title: "Iligan's Majestic Waterfalls",
-    description:
-      "Chase waterfalls and discover the City of Majestic Falls.",
+    subtitle: "Iligan City",
+    description: "Chase waterfalls and discover the City of Majestic Falls.",
     travel: "~90 km from CdeO • ~1.5–2.5 hrs by car",
+    icon: "💦",
   },
   {
     value: "cagayan_de_oro",
     title: "Cagayan de Oro's Whitewaters",
-    description:
-      "Raft, splash, and experience the City of Golden Friendship.",
+    subtitle: "Cagayan de Oro",
+    description: "Raft, splash, and experience the City of Golden Friendship.",
     travel: "Within/near CdeO • ~30–60 min by car",
+    icon: "🌊",
   },
   {
     value: "bukidnon",
     title: "Bukidnon's Scenic Mountains",
-    description:
-      "Cool air, mountain views, and wide-open landscapes.",
+    subtitle: "Bukidnon",
+    description: "Cool air, mountain views, and wide-open landscapes.",
     travel: "~130 km to Dahilayan • ~2 hrs by car",
+    icon: "⛰️",
   },
   {
     value: "misamis_oriental",
     title: "Misamis Oriental's Coastline",
-    description:
-      "Discover beaches, bays, and coastal escapes.",
+    subtitle: "Misamis Oriental",
+    description: "Discover beaches, bays, and coastal escapes.",
     travel: "Varies by site • ~1–2.5 hrs by car",
+    icon: "🏖️",
   },
   {
     value: "camiguin",
     title: "Camiguin's Island Adventure",
-    description:
-      "Volcanoes, waterfalls, springs, and island life.",
+    subtitle: "Camiguin",
+    description: "Volcanoes, waterfalls, springs, and island life.",
     travel: "~2 hrs to Balingoan + ferry",
+    icon: "🏝️",
   },
   {
     value: "siargao",
     title: "Siargao's Paradise Vibe",
-    description:
-      "Slow down, explore, and soak up island energy.",
+    subtitle: "Siargao",
+    description: "Slow down, explore, and soak up island energy.",
     travel: "~6–8 hrs+ including road travel & ferry",
+    icon: "🌴",
   },
   {
     value: "agusan_norte",
     title: "Agusan Norte's Dive Spots",
-    description:
-      "Go beneath the surface and discover underwater treasures.",
+    subtitle: "Agusan del Norte",
+    description: "Go beneath the surface and discover underwater treasures.",
     travel: "Varies by site • ~2–4 hrs by car",
+    icon: "🤿",
   },
   {
     value: "enchanted_river",
     title: "Enchanted River",
     subtitle: "Hinatuan, Surigao del Sur",
-    description:
-      "Crystal-clear waters and one of Mindanao's iconic inland escapes.",
+    description: "Crystal-clear waters and an iconic Mindanao escape.",
     travel: "~300 km from CdeO • ~5 hrs by car",
+    icon: "💧",
   },
   {
     value: "seven_seas",
     title: "Seven Seas Waterpark",
     subtitle: "Opol, Misamis Oriental",
-    description:
-      "Slides, waves, and a high-energy day just outside CdeO.",
+    description: "Slides, waves, and a high-energy day just outside CdeO.",
     travel: "~10–15 km from CdeO • ~15–30 min by car",
+    icon: "🎢",
   },
   {
     value: "claveria",
     title: "Claveria",
     subtitle: "Misamis Oriental",
-    description:
-      "Cooler air, scenic countryside, and a slower Northern Mindanao escape.",
+    description: "Cooler air, scenic countryside, and a slower escape.",
     travel: "~42 km from CdeO • ~45–60 min by car",
+    icon: "🌿",
   },
 ];
 
@@ -116,11 +125,38 @@ const extensionOptions = [
   },
 ];
 
+const sidequestOptions = [
+  {
+    value: "think_about_it",
+    title: "Actually, let me think about it",
+    description:
+      "I'm open to extending my stay if something catches my interest.",
+    icon: "🧭",
+  },
+  {
+    value: "might_stay",
+    title: "I might stay longer",
+    description:
+      "Show me the possibilities. I'm not committing just yet.",
+    icon: "✨",
+  },
+  {
+    value: "cannot_stay",
+    title: "I really can't stay longer",
+    description:
+      "As much as I'd love to, I need to head home.",
+    icon: "🏡",
+  },
+];
+
 export default function Home() {
   const [screen, setScreen] = useState(0);
   const [day4, setDay4] = useState("");
   const [destination, setDestination] = useState([]);
   const [stayingLonger, setStayingLonger] = useState("");
+  const [initialStayingLonger, setInitialStayingLonger] =
+    useState("");
+  const [sidequestDecision, setSidequestDecision] = useState("");
   const [comment, setComment] = useState("");
   const [sessionToken, setSessionToken] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
@@ -137,14 +173,12 @@ export default function Home() {
     setSessionToken(token);
   }, []);
 
-  const totalQuestions = 4;
-
   const progress =
     screen === 0
       ? 0
-      : screen >= 5
+      : screen === 6
         ? 100
-        : ((screen - 1) / totalQuestions) * 100;
+        : Math.round((screen / 5) * 100);
 
   const goNext = () => {
     setErrorMessage("");
@@ -164,10 +198,18 @@ export default function Home() {
       return;
     }
 
-    // If the participant is heading home,
-    // skip the destination question.
     if (screen === 2) {
-      setScreen(stayingLonger === "no" ? 4 : 3);
+      setInitialStayingLonger(stayingLonger);
+
+      if (stayingLonger === "no") {
+        setSidequestDecision("");
+        setDestination([]);
+        setScreen(4);
+        return;
+      }
+
+      setSidequestDecision("");
+      setScreen(3);
       return;
     }
 
@@ -177,18 +219,60 @@ export default function Home() {
   const goBack = () => {
     setErrorMessage("");
 
-    // If destinations were skipped because they chose "No",
-    // take them back to the stay/extend question.
-    if (screen === 4 && stayingLonger === "no") {
+    if (screen === 1) {
+      setScreen(0);
+      return;
+    }
+
+    if (screen === 3) {
       setScreen(2);
+      return;
+    }
+
+    if (screen === 4) {
+      setScreen(2);
+      return;
+    }
+
+    if (screen === 5) {
+      if (initialStayingLonger === "no") {
+        setScreen(4);
+      } else {
+        setScreen(3);
+      }
       return;
     }
 
     setScreen((current) => Math.max(0, current - 1));
   };
 
+  const chooseSidequest = (decision) => {
+    setErrorMessage("");
+    setSidequestDecision(decision);
+
+    if (decision === "cannot_stay") {
+      setStayingLonger("no");
+      setDestination([]);
+      setScreen(5);
+      return;
+    }
+
+    // Preserve the initial "No", but record the final
+    // intention as "Maybe" after reconsideration.
+    setStayingLonger("maybe");
+    setScreen(3);
+  };
+
   const submitResponse = async () => {
     setErrorMessage("");
+
+    if (!sessionToken) {
+      setErrorMessage(
+        "Please wait a moment and try submitting again."
+      );
+      return;
+    }
+
     setSubmitting(true);
 
     try {
@@ -202,6 +286,9 @@ export default function Home() {
           day4_experience: day4,
           destination,
           staying_longer: stayingLonger,
+          initial_staying_longer:
+            initialStayingLonger || stayingLonger,
+          sidequest_decision: sidequestDecision || null,
           comment: comment.trim() || null,
         }),
       });
@@ -209,10 +296,12 @@ export default function Home() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data?.error || "Something went wrong.");
+        throw new Error(
+          data?.error || "Something went wrong."
+        );
       }
 
-      setScreen(5);
+      setScreen(6);
     } catch (error) {
       setErrorMessage(
         error.message ||
@@ -256,8 +345,11 @@ export default function Home() {
               isSelected ? "selected" : ""
             }`}
             onClick={handleSelect}
+            aria-pressed={isSelected}
           >
-            <span className="option-number">{index + 1}</span>
+            <span className="option-number">
+              {index + 1}
+            </span>
 
             <span className="option-arrow">
               {isSelected ? "✓" : "→"}
@@ -293,8 +385,6 @@ export default function Home() {
       <div className="top-wave" />
 
       <div className="poll-container">
-
-        {/* PRA EVENT HEADER */}
         <header className="brand-header">
           <div className="brand-logos">
             <img
@@ -312,11 +402,11 @@ export default function Home() {
           </div>
         </header>
 
-        {screen > 0 && screen < 5 && (
+        {screen > 0 && screen < 6 && (
           <div className="progress-wrap">
             <div className="progress-label">
               <span>Your PRA Experience</span>
-              <span>{Math.round(progress)}%</span>
+              <span>{progress}%</span>
             </div>
 
             <div className="progress-track">
@@ -329,9 +419,9 @@ export default function Home() {
         )}
 
         {/* WELCOME */}
+
         {screen === 0 && (
           <section className="screen welcome-card">
-
             <div className="poster-kicker">
               <strong>Back to CdeO</strong>
               <span>Northern Mindanao</span>
@@ -360,9 +450,7 @@ export default function Home() {
             </div>
 
             <div className="welcome-meta">
-              <span className="meta-pill">
-                60 seconds
-              </span>
+              <span className="meta-pill">60 seconds</span>
               <span className="meta-pill">
                 4 quick questions
               </span>
@@ -377,14 +465,13 @@ export default function Home() {
                 LET'S GO →
               </button>
             </div>
-
           </section>
         )}
 
         {/* DAY 4 */}
+
         {screen === 1 && (
           <section className="screen">
-
             <p className="eyebrow">DAY 4</p>
 
             <h1 className="question-title">
@@ -398,11 +485,7 @@ export default function Home() {
               our Day 4, what would you join?
             </p>
 
-            {renderOptions(
-              day4Options,
-              day4,
-              setDay4
-            )}
+            {renderOptions(day4Options, day4, setDay4)}
 
             <div className="actions">
               <button
@@ -428,17 +511,14 @@ export default function Home() {
                 {errorMessage}
               </div>
             )}
-
           </section>
         )}
 
-        {/* STAYING LONGER */}
+        {/* INITIAL STAY QUESTION */}
+
         {screen === 2 && (
           <section className="screen">
-
-            <p className="eyebrow">
-              POST-CONVENTION
-            </p>
+            <p className="eyebrow">POST-CONVENTION</p>
 
             <h1 className="question-title">
               ARE YOU PLANNING TO STAY
@@ -482,16 +562,15 @@ export default function Home() {
                 {errorMessage}
               </div>
             )}
-
           </section>
         )}
 
-        {/* DESTINATION */}
+        {/* DESTINATIONS */}
+
         {screen === 3 && (
           <section className="screen">
-
             <p className="eyebrow">
-              POST-CONVENTION
+              YOUR NORTHMIN SIDE QUEST
             </p>
 
             <h1 className="question-title">
@@ -512,8 +591,8 @@ export default function Home() {
               <br />
 
               <span className="travel-note">
-                Travel times are approximate and do not
-                include stops, traffic, or ferry crossings.
+                Travel times are approximate and may vary
+                with traffic, stops, and ferry schedules.
               </span>
             </p>
 
@@ -548,17 +627,140 @@ export default function Home() {
                 {errorMessage}
               </div>
             )}
+          </section>
+        )}
 
+        {/* SIDE-QUEST INVITATION FOR INITIAL NO */}
+
+        {screen === 4 && (
+          <section className="screen sidequest-screen">
+            <div className="sidequest-kicker">
+              <span>ONE LAST THING</span>
+              <span aria-hidden="true">✨</span>
+            </div>
+
+            <p className="eyebrow">BEFORE YOU GO HOME...</p>
+
+            <h1 className="question-title">
+              WAIT...
+              <br />
+              <span>ARE YOU SURE?</span>
+            </h1>
+
+            <p className="question-copy">
+              What if your PRA convention came with
+              a little side quest?
+            </p>
+
+            <div className="sidequest-banner">
+              <div className="sidequest-banner-icon">
+                🧭
+              </div>
+
+              <div>
+                <strong>
+                  YOUR CONVENTION.
+                  <br />
+                  YOUR SIDE QUEST.
+                </strong>
+
+                <p>
+                  You came for the convention.
+                  What if you stayed for the experience?
+                </p>
+              </div>
+            </div>
+
+            <h2 className="sidequest-subheading">
+              What could you discover?
+            </h2>
+
+            <p className="sidequest-copy">
+              From island escapes and scenic mountains
+              to waterfalls, whitewater adventures,
+              and coastal hideaways, there may be a
+              destination worth staying for.
+            </p>
+
+            <div className="sidequest-destinations">
+              {destinations.map((place) => (
+                <div
+                  className="sidequest-destination"
+                  key={place.value}
+                >
+                  <span className="sidequest-place-icon">
+                    {place.icon}
+                  </span>
+
+                  <div className="sidequest-place-content">
+                    <strong>{place.title}</strong>
+
+                    <span>{place.subtitle}</span>
+
+                    <p>{place.description}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="sidequest-question">
+              <strong>
+                So... should we leave the door open?
+              </strong>
+
+              <p>
+                Choose whichever feels right.
+                No pressure — just possibilities.
+              </p>
+            </div>
+
+            <div className="sidequest-choices">
+              {sidequestOptions.map((option) => (
+                <button
+                  type="button"
+                  key={option.value}
+                  className={`sidequest-choice ${
+                    option.value === "cannot_stay"
+                      ? "sidequest-choice-home"
+                      : ""
+                  }`}
+                  onClick={() =>
+                    chooseSidequest(option.value)
+                  }
+                >
+                  <span className="sidequest-choice-icon">
+                    {option.icon}
+                  </span>
+
+                  <span className="sidequest-choice-copy">
+                    <strong>{option.title}</strong>
+                    <span>{option.description}</span>
+                  </span>
+
+                  <span className="sidequest-choice-arrow">
+                    →
+                  </span>
+                </button>
+              ))}
+            </div>
+
+            <div className="actions">
+              <button
+                type="button"
+                className="secondary-button"
+                onClick={goBack}
+              >
+                ← Back
+              </button>
+            </div>
           </section>
         )}
 
         {/* OPTIONAL COMMENT */}
-        {screen === 4 && (
-          <section className="screen">
 
-            <p className="eyebrow">
-              ALMOST THERE
-            </p>
+        {screen === 5 && (
+          <section className="screen">
+            <p className="eyebrow">ALMOST THERE</p>
 
             <h1 className="question-title">
               WHAT WOULD MAKE
@@ -566,10 +768,20 @@ export default function Home() {
               <span>IT UNFORGETTABLE?</span>
             </h1>
 
-            <p className="question-copy">
-              Tell us anything you'd love to see,
-              experience, eat, discover, or remember.
-            </p>
+            {initialStayingLonger === "no" &&
+            sidequestDecision === "cannot_stay" ? (
+              <p className="question-copy">
+                No worries! We understand that plans and
+                schedules come first. Before you go,
+                is there anything you'd love to see,
+                experience, eat, or discover?
+              </p>
+            ) : (
+              <p className="question-copy">
+                Tell us anything you'd love to see,
+                experience, eat, discover, or remember.
+              </p>
+            )}
 
             <textarea
               className="textarea"
@@ -599,7 +811,7 @@ export default function Home() {
                 type="button"
                 className="primary-button"
                 onClick={submitResponse}
-                disabled={submitting}
+                disabled={submitting || !sessionToken}
               >
                 {submitting
                   ? "SAVING..."
@@ -612,19 +824,16 @@ export default function Home() {
                 {errorMessage}
               </div>
             )}
-
           </section>
         )}
 
         {/* THANK YOU */}
-        {screen === 5 && (
-          <section className="screen thank-you">
 
+        {screen === 6 && (
+          <section className="screen thank-you">
             <div className="checkmark">✓</div>
 
-            <p className="eyebrow">
-              YOU'RE IN
-            </p>
+            <p className="eyebrow">YOU'RE IN</p>
 
             <h1>
               THANK
@@ -635,18 +844,16 @@ export default function Home() {
             <p>
               Your choices have been recorded.
               <br />
-              Now let's see what Northmin wants
-              to experience together.
+              Every response helps shape the PRA
+              convention experience.
             </p>
 
             <div className="thank-you-line">
               YOUR PRA. YOUR EXPERIENCE.
             </div>
-
           </section>
         )}
 
-        {/* ONE TADHANA ATTRIBUTION */}
         <footer className="footer">
           <strong>
             An Experience Initiative by One Tadhana Inc.
@@ -665,7 +872,6 @@ export default function Home() {
             www.tadhanasolutions.com
           </a>
         </footer>
-
       </div>
     </main>
   );
