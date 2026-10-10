@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
@@ -44,10 +45,62 @@ function formatTime(date) {
   if (!date) return "";
 
   return new Intl.DateTimeFormat("en-PH", {
-    hour: "numeric",
-    minute: "2-digit",
-    second: "2-digit",
+    dateStyle: "medium",
+    timeStyle: "short",
   }).format(date);
+}
+
+function ResultBar({ percentage, color = "blue" }) {
+  const safePercentage = Math.max(
+    0,
+    Math.min(100, Number(percentage) || 0)
+  );
+
+  return (
+    <div
+      className={`result-track result-track-${color}`}
+      role="progressbar"
+      aria-valuenow={safePercentage}
+      aria-valuemin={0}
+      aria-valuemax={100}
+      aria-label={`${safePercentage}% of respondents`}
+    >
+      <div
+        className="result-fill"
+        style={{ width: `${safePercentage}%` }}
+      />
+    </div>
+  );
+}
+
+function ResultItem({
+  item,
+  index,
+  label,
+  color = "blue",
+}) {
+  return (
+    <div className="result-item" key={item.value}>
+      <div className="result-heading">
+        <div className="result-name">
+          <span className="rank">{index + 1}</span>
+          <span>{label}</span>
+        </div>
+
+        <strong>{item.percentage}%</strong>
+      </div>
+
+      <ResultBar
+        percentage={item.percentage}
+        color={color}
+      />
+
+      <div className="result-count">
+        {item.responses}{" "}
+        {item.responses === 1 ? "response" : "responses"}
+      </div>
+    </div>
+  );
 }
 
 export default function PulsePage() {
@@ -56,78 +109,96 @@ export default function PulsePage() {
   const [errorMessage, setErrorMessage] = useState("");
   const [lastUpdated, setLastUpdated] = useState(null);
 
-  const fetchPulse = async () => {
-    try {
-      const response = await fetch("/api/pulse", {
-        method: "GET",
-        cache: "no-store",
-      });
-
-      if (!response.ok) {
-        throw new Error("Unable to load live results.");
-      }
-
-      const result = await response.json();
-
-      setData(result);
-      setLastUpdated(new Date());
-      setErrorMessage("");
-    } catch (error) {
-      console.error("Pulse fetch error:", error);
-      setErrorMessage(
-        "We couldn't load the latest results. Please try again."
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
+    let active = true;
+
+    async function fetchPulse() {
+      try {
+        const response = await fetch("/api/pulse", {
+          method: "GET",
+          cache: "no-store",
+        });
+
+        if (!response.ok) {
+          throw new Error("Unable to load live results.");
+        }
+
+        const result = await response.json();
+
+        if (!active) return;
+
+        setData(result);
+        setLastUpdated(new Date());
+        setErrorMessage("");
+      } catch (error) {
+        console.error("Pulse fetch error:", error);
+
+        if (active) {
+          setErrorMessage(
+            "We couldn't load the latest results. Please try again shortly."
+          );
+        }
+      } finally {
+        if (active) setLoading(false);
+      }
+    }
+
     fetchPulse();
 
-    const interval = setInterval(() => {
-      fetchPulse();
-    }, 5000);
+    const interval = setInterval(fetchPulse, 5000);
 
-    return () => clearInterval(interval);
+    return () => {
+      active = false;
+      clearInterval(interval);
+    };
   }, []);
 
-  const leadingDay4 = useMemo(() => {
-    if (!data?.day4?.length) return null;
-
-    return [...data.day4].sort(
-      (a, b) => b.responses - a.responses
-    )[0];
-  }, [data]);
-
-  const leadingDestination = useMemo(() => {
-    if (!data?.destinations?.length) return null;
-
-    return [...data.destinations].sort(
-      (a, b) => b.responses - a.responses
-    )[0];
-  }, [data]);
-
-  const stayingYes = data?.staying?.find(
-    (item) => item.value === "yes"
+  const sortedDay4 = useMemo(
+    () =>
+      [...(data?.day4 || [])].sort(
+        (a, b) => b.responses - a.responses
+      ),
+    [data]
   );
 
-  const stayingMaybe = data?.staying?.find(
-    (item) => item.value === "maybe"
+  const sortedStaying = useMemo(
+    () =>
+      [...(data?.staying || [])].sort(
+        (a, b) => b.responses - a.responses
+      ),
+    [data]
   );
 
-  const stayingLongerPercentage =
+  const sortedDestinations = useMemo(
+    () =>
+      [...(data?.destinations || [])].sort(
+        (a, b) => b.responses - a.responses
+      ),
+    [data]
+  );
+
+  const leadingDay4 = sortedDay4[0] || null;
+  const leadingDestination = sortedDestinations[0] || null;
+
+  const stayingYes =
+    data?.staying?.find((item) => item.value === "yes");
+
+  const stayingMaybe =
+    data?.staying?.find((item) => item.value === "maybe");
+
+  const stayingLongerPercentage = Math.min(
+    100,
     (stayingYes?.percentage || 0) +
-    (stayingMaybe?.percentage || 0);
+      (stayingMaybe?.percentage || 0)
+  );
+
+  const totalResponses = data?.total_responses || 0;
 
   return (
     <main className="pulse-shell">
-      <div className="pulse-wave pulse-wave-one" />
-      <div className="pulse-wave pulse-wave-two" />
-
       <div className="pulse-container">
 
-        {/* HEADER */}
+        {/* CONVENTION HEADER */}
 
         <header className="pulse-header">
           <img
@@ -138,13 +209,12 @@ export default function PulsePage() {
 
           <div className="pulse-event">
             <strong>PRA 33RD ANNUAL MEETING</strong>
-            <span>
-              February 24–27, 2027 • Cagayan de Oro
-            </span>
+            <span>February 24–27, 2027</span>
+            <span>Cagayan de Oro</span>
           </div>
         </header>
 
-        {/* HERO */}
+        {/* MAIN MESSAGE */}
 
         <section className="pulse-hero">
           <div className="pulse-live">
@@ -155,60 +225,59 @@ export default function PulsePage() {
           <h1>
             WHAT DOES
             <br />
-            <span>NORTHMIN WANT?</span>
+            <span>PRA WANT?</span>
           </h1>
 
           <p>
-            The Convention experience is being shaped
-            by the people who will be there.
+            Your voice matters. Help shape the convention
+            experience through your preferences and ideas.
           </p>
 
           <div className="response-count">
             <strong>
-              {loading
-                ? "—"
-                : data?.total_responses || 0}
+              {loading && !data ? "—" : totalResponses}
             </strong>
 
             <span>
-              RESPONSES AND COUNTING
+              RESPONSES
+              <br />
+              AND COUNTING
             </span>
           </div>
         </section>
 
-        {/* ERROR */}
+        {/* LOADING AND ERROR STATES */}
 
         {errorMessage && (
-          <div className="pulse-error">
+          <div className="pulse-error" role="alert">
             {errorMessage}
           </div>
         )}
 
-        {/* LOADING */}
-
         {loading && !data && (
           <section className="pulse-card pulse-loading">
             <div className="pulse-spinner" />
-            <p>
-              Gathering the latest Northmin pulse...
-            </p>
+            <p>Gathering the latest poll results...</p>
           </section>
         )}
 
-        {/* RESULTS */}
+        {/* LIVE RESULTS */}
 
         {data && (
           <>
-            {/* DAY 4 */}
+            {/* DAY 4 EXPERIENCE */}
 
             <section className="pulse-card">
               <div className="section-kicker">
-                DAY 4
+                DAY 4 EXPERIENCE
               </div>
 
-              <h2>
-                WHAT'S TRENDING?
-              </h2>
+              <h2>What's Trending?</h2>
+
+              <p className="section-description">
+                Which activity would you like to experience
+                together?
+              </p>
 
               {leadingDay4 && (
                 <div className="trending-callout">
@@ -220,77 +289,49 @@ export default function PulsePage() {
                   </strong>
 
                   <small>
-                    {leadingDay4.percentage}% of
-                    respondents
+                    {leadingDay4.percentage}% of respondents
                   </small>
                 </div>
               )}
 
-              <div className="result-list">
-                {[...(data.day4 || [])]
-                  .sort(
-                    (a, b) =>
-                      b.responses - a.responses
-                  )
-                  .map((item, index) => (
-                    <div
-                      className="result-item"
+              {sortedDay4.length > 0 ? (
+                <div className="result-list">
+                  {sortedDay4.map((item, index) => (
+                    <ResultItem
                       key={item.value}
-                    >
-                      <div className="result-heading">
-                        <div className="result-name">
-                          <span className="rank">
-                            {index + 1}
-                          </span>
-
-                          <span>
-                            {day4Labels[item.value] ||
-                              item.value}
-                          </span>
-                        </div>
-
-                        <strong>
-                          {item.percentage}%
-                        </strong>
-                      </div>
-
-                      <div className="result-track">
-                        <div
-                          className="result-fill"
-                          style={{
-                            width: `${item.percentage}%`,
-                          }}
-                        />
-                      </div>
-
-                      <div className="result-count">
-                        {item.responses}{" "}
-                        {item.responses === 1
-                          ? "response"
-                          : "responses"}
-                      </div>
-                    </div>
+                      item={item}
+                      index={index}
+                      label={
+                        day4Labels[item.value] || item.value
+                      }
+                    />
                   ))}
-              </div>
+                </div>
+              ) : (
+                <p className="section-description">
+                  No Day 4 responses yet. Be among the first
+                  to share your preference!
+                </p>
+              )}
             </section>
 
-            {/* STAYING */}
+            {/* EXTENDING THE STAY */}
 
             <section className="pulse-card">
               <div className="section-kicker">
                 AFTER THE CONVENTION
               </div>
 
-              <h2>
-                IS NORTHMIN STAYING?
-              </h2>
+              <h2>Will You Stay Longer?</h2>
+
+              <p className="section-description">
+                Would you like to extend your stay and
+                explore more of the region?
+              </p>
 
               <div className="stay-highlight">
                 <strong>
-                  {Math.round(
-                    stayingLongerPercentage
-                  )}
-                  %
+                  {Math.round(stayingLongerPercentage)}%
                 </strong>
 
                 <span>
@@ -300,72 +341,47 @@ export default function PulsePage() {
                 </span>
               </div>
 
-              <div className="result-list">
-                {[...(data.staying || [])]
-                  .sort(
-                    (a, b) =>
-                      b.responses - a.responses
-                  )
-                  .map((item, index) => (
-                    <div
-                      className="result-item"
+              {sortedStaying.length > 0 ? (
+                <div className="result-list">
+                  {sortedStaying.map((item, index) => (
+                    <ResultItem
                       key={item.value}
-                    >
-                      <div className="result-heading">
-                        <div className="result-name">
-                          <span className="rank">
-                            {index + 1}
-                          </span>
-
-                          <span>
-                            {stayingLabels[item.value] ||
-                              item.value}
-                          </span>
-                        </div>
-
-                        <strong>
-                          {item.percentage}%
-                        </strong>
-                      </div>
-
-                      <div className="result-track">
-                        <div
-                          className="result-fill"
-                          style={{
-                            width: `${item.percentage}%`,
-                          }}
-                        />
-                      </div>
-
-                      <div className="result-count">
-                        {item.responses}{" "}
-                        {item.responses === 1
-                          ? "response"
-                          : "responses"}
-                      </div>
-                    </div>
+                      item={item}
+                      index={index}
+                      label={
+                        stayingLabels[item.value] ||
+                        item.value
+                      }
+                      color="gold"
+                    />
                   ))}
-              </div>
+                </div>
+              ) : (
+                <p className="section-description">
+                  No stay-extension responses yet.
+                </p>
+              )}
             </section>
 
-            {/* DESTINATIONS */}
+            {/* DESTINATION PREFERENCES */}
 
             <section className="pulse-card">
               <div className="section-kicker">
-                WHERE TO NEXT?
+                DESTINATION PREFERENCES
               </div>
 
               <h2>
-                WHERE DOES
+                Where Would You
                 <br />
-                NORTHMIN WANT TO GO?
+                Like to Go?
               </h2>
 
               <p className="section-description">
-                Respondents can choose more than one
-                destination, so these percentages show
-                the share of respondents interested in
-                each place.
+                Discover which destinations interest
+                convention participants. You can select
+                more than one destination, so percentages
+                represent the share of respondents interested
+                in each place.
               </p>
 
               {leadingDestination && (
@@ -378,24 +394,18 @@ export default function PulsePage() {
                     ] || "📍"}{" "}
                     {destinationLabels[
                       leadingDestination.value
-                    ] ||
-                      leadingDestination.value}
+                    ] || leadingDestination.value}
                   </strong>
 
                   <small>
-                    {leadingDestination.percentage}%
-                    interested
+                    {leadingDestination.percentage}% interested
                   </small>
                 </div>
               )}
 
-              <div className="destination-list">
-                {[...(data.destinations || [])]
-                  .sort(
-                    (a, b) =>
-                      b.responses - a.responses
-                  )
-                  .map((item, index) => (
+              {sortedDestinations.length > 0 ? (
+                <div className="destination-list">
+                  {sortedDestinations.map((item) => (
                     <div
                       className="destination-item"
                       key={item.value}
@@ -403,16 +413,14 @@ export default function PulsePage() {
                       <div className="destination-top">
                         <div className="destination-name">
                           <span className="destination-icon">
-                            {destinationIcons[
-                              item.value
-                            ] || "📍"}
+                            {destinationIcons[item.value] ||
+                              "📍"}
                           </span>
 
                           <div>
                             <strong>
-                              {destinationLabels[
-                                item.value
-                              ] || item.value}
+                              {destinationLabels[item.value] ||
+                                item.value}
                             </strong>
 
                             <small>
@@ -429,17 +437,18 @@ export default function PulsePage() {
                         </strong>
                       </div>
 
-                      <div className="result-track">
-                        <div
-                          className="result-fill"
-                          style={{
-                            width: `${item.percentage}%`,
-                          }}
-                        />
-                      </div>
+                      <ResultBar
+                        percentage={item.percentage}
+                      />
                     </div>
                   ))}
-              </div>
+                </div>
+              ) : (
+                <p className="section-description">
+                  Destination preferences will appear here
+                  as participants respond.
+                </p>
+              )}
             </section>
 
             {/* LIVE STATUS */}
@@ -448,13 +457,14 @@ export default function PulsePage() {
               <span className="live-dot" />
 
               <div>
-                <strong>
-                  LIVE RESULTS
-                </strong>
+                <strong>LIVE RESULTS</strong>
 
                 <small>
-                  Updated {formatTime(lastUpdated)}
-                  {" "}• Refreshing automatically
+                  {lastUpdated
+                    ? `Last updated: ${formatTime(lastUpdated)}`
+                    : "Waiting for results"}
+                  {" · "}
+                  Refreshes automatically
                 </small>
               </div>
             </section>
@@ -464,9 +474,7 @@ export default function PulsePage() {
         {/* FOOTER */}
 
         <footer className="pulse-footer">
-          <strong>
-            YOUR PRA. YOUR EXPERIENCE.
-          </strong>
+          <strong>YOUR PRA. YOUR EXPERIENCE.</strong>
 
           <span>
             An Experience Initiative by One Tadhana Inc.
